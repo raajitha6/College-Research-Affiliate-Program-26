@@ -36,12 +36,23 @@ const PredictionDistributionChart = ({ data }) => (
 );
 
 const RealTimePrediction = ({ prediction }) => (
-  <div className="card">
-    <h3>Current Activity</h3>
-    <p>{prediction?.prediction || "No data"}</p>
-    <p>
-      Confidence: {prediction ? (prediction.confidence * 100).toFixed(2) + "%" : "-"}
-    </p>
+  <div className="card prediction-card">
+    <div className="card-header">
+      <div className="card-icon">🤖</div>
+      <h3>Current Activity</h3>
+    </div>
+
+    <div className="card-value">
+      <span className="value">
+        {prediction?.prediction || '--'}
+      </span>
+    </div>
+
+    <div className="card-status">
+      <span className="status good">
+        Confidence: {prediction ? (prediction.confidence * 100).toFixed(2) + "%" : "-"}
+      </span>
+    </div>
   </div>
 );
 
