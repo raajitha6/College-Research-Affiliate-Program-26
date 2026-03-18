@@ -133,7 +133,7 @@ const Home = () => {
   };
 
   // Get time range parameters based on selection
-  const getTimeRangeParams = () => {
+  /*const getTimeRangeParams = () => {
     const now = new Date();
     let fromDate, toDate;
 
@@ -171,7 +171,7 @@ const Home = () => {
       from: fromDate.toISOString(),
       to: toDate.toISOString()
     };
-  };
+  }; */
 
   // Fetch real sensor data from API
   const fetchSensorData = async () => {
@@ -179,8 +179,8 @@ const Home = () => {
       setLoading(true);
       // Add tank_id parameter if a node is selected
       // Map the selected node to actual tank_id used in sensor data
-      const actualTankId = selectedNode ? getActualTankId(selectedNode) : null;
-      const timeParams = getTimeRangeParams();
+      //const actualTankId = selectedNode ? getActualTankId(selectedNode) : null;
+      //const timeParams = getTimeRangeParams();
 
       let url = config.SENSOR_DATA_URL;
 
@@ -358,6 +358,7 @@ const Home = () => {
     setCustomToDate(event.target.value);
   };
 
+  // eslint-disable-next-line
   useEffect(() => {
     // Initial data fetch
     fetchNodes();
@@ -372,6 +373,7 @@ const Home = () => {
   }, []);
 
   // Effect to refetch sensor data when selectedNode changes
+  // eslint-disable-next-line
   useEffect(() => {
     if (selectedNode) {
       fetchSensorData();
@@ -379,6 +381,7 @@ const Home = () => {
   }, [selectedNode]);
 
   // Effect to refetch sensor data when time range changes
+  // eslint-disable-next-line
   useEffect(() => {
     if (selectedTimeRange && selectedNode) {
       fetchSensorData();
@@ -386,6 +389,7 @@ const Home = () => {
   }, [selectedTimeRange]);
 
   // Effect to refetch sensor data when custom dates change
+  // eslint-disable-next-line
   useEffect(() => {
     if (selectedTimeRange === 'custom' && customFromDate && customToDate && selectedNode) {
       fetchSensorData();
