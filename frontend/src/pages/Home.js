@@ -564,26 +564,7 @@ const Home = () => {
             </span>
           </div>
         </div>
-        <div className="card prediction-card">
-          <div className="card-header">
-            <div className="card-icon">
-              🤖
-            </div>
-            <h3>Current Activity</h3>
-          </div>
-
-          <div className="card-value">
-            <span className="value">
-              {currentPrediction?.prediction || '--'}
-            </span>
-          </div>
-
-          <div className="card-status">
-            <span className="status good">
-              Confidence: {currentPrediction ? (currentPrediction.confidence * 100).toFixed(2) + "%" : "-"}
-            </span>
-          </div>
-        </div>
+        <RealTimePrediction prediction={currentPrediction} />
       </div>
 
       {/* Graphs Section */}
