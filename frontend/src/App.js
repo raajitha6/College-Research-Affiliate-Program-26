@@ -1,3 +1,4 @@
+import Prediction from './pages/Prediction';
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -22,6 +23,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/node-creation" element={<NodeCreation />} />
+            <Route path="/prediction" element={<Prediction />} />
           </Routes>
         </main>
       </div>

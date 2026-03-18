@@ -1,8 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
-
 import config from '../config';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, PieChart, Pie, Cell, Legend,
+  BarChart, Bar
+} from 'recharts';
+
+const CHART_COLORS = [
+  'var(--primary-color)',
+  'var(--secondary-color)',
+  'var(--accent-color)',
+  '#8884d8',
+  '#82ca9d'
+];
+
+const PredictionDistributionChart = ({ data }) => (
+  <ResponsiveContainer width="100%" height={250}>
+    <PieChart>
+      <Pie
+        data={data}
+        dataKey="value"
+        nameKey="name"
+        outerRadius={80}
+        label
+      >
+        {data.map((entry, index) => (
+          <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+        ))}
+      </Pie>
+      <Tooltip />
+      <Legend />
+    </PieChart>
+  </ResponsiveContainer>
+);
+
+const RealTimePrediction = ({ prediction }) => (
+  <div className="card">
+    <h3>Current Activity</h3>
+    <p>{prediction?.prediction || "No data"}</p>
+    <p>
+      Confidence: {prediction ? (prediction.confidence * 100).toFixed(2) + "%" : "-"}
+    </p>
+  </div>
+);
+
+const ActivityTimeline = ({ data }) => (
+  <ResponsiveContainer width="100%" height={250}>
+    <BarChart data={data}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="time" />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="duration" fill="var(--primary-color)" />
+    </BarChart>
+  </ResponsiveContainer>
+);
+
+const ConfidenceGauge = ({ confidence }) => (
+  <div className="gauge-container">
+    <h3>Confidence</h3>
+
+    <div className="gauge-bar">
+      <div
+        className="gauge-fill"
+        style={{ width: `${confidence * 100}%` }}
+      ></div>
+    </div>
+
+    <p>{(confidence * 100).toFixed(2)}%</p>
+  </div>
+);
 
 const Home = () => {
   const [waterLevel, setWaterLevel] = useState(0);
@@ -18,6 +86,41 @@ const Home = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('all');
   const [customFromDate, setCustomFromDate] = useState('');
   const [customToDate, setCustomToDate] = useState('');
+
+  const [currentPrediction, setCurrentPrediction] = useState(null); //real time prediction
+
+  const timelineData = [ //dummy vals for activity timeline
+    { time: "10:00", duration: 5 },
+    { time: "11:00", duration: 8 },
+    { time: "12:00", duration: 3 }
+  ];
+
+  
+
+  const predictionDistribution = [ //dummy vals connecting to PredictionDistributionChart
+    { name: 'shower', value: 12 },
+    { name: 'faucet', value: 25 },
+    { name: 'toilet', value: 8 },
+    { name: 'dishwasher', value: 5 }
+  ];
+
+  const fetchPrediction = async (distance, temperature) => {
+    try {
+      const response = await axios.post(
+      `${config.API_BASE_URL}/api/v1/predict`,
+      {
+        distance:distance,
+        temperature:temperature,
+        time_features: [0,0,0]
+      }
+    );
+
+    setCurrentPrediction(response.data);
+
+  } catch (error) {
+    console.error("Prediction error:", error);
+  }
+};
 
   // Mapping between node IDs and tank IDs for sensor data
   const getActualTankId = (nodeId) => {
@@ -101,6 +204,7 @@ const Home = () => {
         setNodeDataMessage('');
         // Get the latest reading for current values
         const latest = sensorData[0];
+        fetchPrediction(latest.distance, latest.temperature);
 
         // Get tank height for the selected node (default to 200cm if not found)
         const selectedNodeData = nodes.find(n => n.id === selectedNode);
@@ -456,6 +560,26 @@ const Home = () => {
             </span>
           </div>
         </div>
+        <div className="card prediction-card">
+          <div className="card-header">
+            <div className="card-icon">
+              🤖
+            </div>
+            <h3>Current Activity</h3>
+          </div>
+
+          <div className="card-value">
+            <span className="value">
+              {currentPrediction?.prediction || '--'}
+            </span>
+          </div>
+
+          <div className="card-status">
+            <span className="status good">
+              Confidence: {currentPrediction ? (currentPrediction.confidence * 100).toFixed(2) + "%" : "-"}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Graphs Section */}
@@ -492,9 +616,11 @@ const Home = () => {
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#2196F3"
-                  strokeWidth="3"
-                  dot={{ fill: '#2196F3', strokeWidth: 2, r: 4 }}
+                  stroke="var(--primary-color)"
+                  strokeWidth={3}
+                  dot={{ fill: 'var(--primary-color)', strokeWidth: 2, r: 4 }}
+                  animationDuration={500}
+                  animationBegin={0}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -530,14 +656,33 @@ const Home = () => {
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#FF9800"
-                  strokeWidth="3"
-                  dot={{ fill: '#FF9800', strokeWidth: 2, r: 4 }}
+                  stroke="var(--accent-color)"
+                  strokeWidth={3}
+                  dot={{ fill: 'var(--accent-color)', strokeWidth: 2, r: 4 }}
+                  animationDuration={500}
+                  animationBegin={0}
                 />
               </LineChart>
             </ResponsiveContainer>
           )}
         </div>
+        <div className="graph-card">
+          <h3>Prediction Distribution</h3>
+          <PredictionDistributionChart data={predictionDistribution} />
+        </div>
+      </div>
+      <div className="graphs-container">
+
+        <div className="graph-card">
+          <h3>Activity Timeline</h3>
+          <ActivityTimeline data={timelineData} />
+        </div>
+
+        <div className="graph-card">
+          <h3>Prediction Confidence</h3>
+          <ConfidenceGauge confidence={currentPrediction?.confidence||0} />
+        </div>
+
       </div>
     </div>
   );

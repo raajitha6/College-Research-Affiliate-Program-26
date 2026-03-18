@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router-dom';
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -54,6 +55,13 @@ const Sidebar = ({ isOpen, onClose }) => {
               <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
             </svg>
             Node Creation
+          </button>
+          <button
+            className={`sidebar-btn ${location.pathname === '/prediction' ? 'active' : ''}`}
+            onClick={() => handleNavigation('/prediction')}
+          >
+            <span className="icon">🤖</span>
+            Prediction
           </button>
         </nav>
       </div>
