@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useCallback } from "react";
 import axios from 'axios';
 import config from '../config';
 import {
@@ -185,7 +186,7 @@ const Home = () => {
   }; */
 
   // Fetch real sensor data from API
-  const fetchSensorData = async () => {
+  const fetchSensorData = useCallback(async () => {
     try {
       setLoading(true);
       // Add tank_id parameter if a node is selected
@@ -289,10 +290,10 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedNode, selectedTimeRange, customFromDate, customToDate]);
 
   // Fetch available nodes from tank_sensorparameters table
-  const fetchNodes = async () => {
+  const fetchNodes = useCallback(async () => {
     try {
       const response = await axios.get(
         config.TANK_PARAMETERS_URL,
@@ -332,7 +333,7 @@ const Home = () => {
         setSelectedNode(sampleNodes[0].id);
       }
     }
-  };
+  }, []);
 
   // Handle node selection change
   const handleNodeChange = (event) => {
@@ -381,7 +382,7 @@ const Home = () => {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNodes, fetchSensorData]);
 
   // Effect to refetch sensor data when selectedNode changes
 
@@ -390,7 +391,7 @@ const Home = () => {
     if (selectedNode) {
       fetchSensorData();
     }
-  }, [selectedNode]);
+  }, [selectedNode, fetchSensorData]);
 
   // Effect to refetch sensor data when time range changes
 // eslint-disable-next-line
@@ -398,7 +399,7 @@ const Home = () => {
     if (selectedTimeRange && selectedNode) {
       fetchSensorData();
     }
-  }, [selectedTimeRange]);
+  }, [selectedTimeRange, selectedNode, fetchSensorData]);
 
   // Effect to refetch sensor data when custom dates change
 // eslint-disable-next-line
@@ -406,7 +407,7 @@ const Home = () => {
     if (selectedTimeRange === 'custom' && customFromDate && customToDate && selectedNode) {
       fetchSensorData();
     }
-  }, [customFromDate, customToDate]);
+  }, [customFromDate, customToDate, selectedNode, selectedTimeRange, fetchSensorData]);
 
   return (
     <div className="home-page">
