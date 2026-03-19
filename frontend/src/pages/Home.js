@@ -290,7 +290,7 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedNode, selectedTimeRange, customFromDate, customToDate]);
+  }, [selectedNode, selectedTimeRange, customFromDate, customToDate, nodes]);
 
   // Fetch available nodes from tank_sensorparameters table
   const fetchNodes = useCallback(async () => {
@@ -333,7 +333,7 @@ const Home = () => {
         setSelectedNode(sampleNodes[0].id);
       }
     }
-  }, []);
+  }, [selectedNode]);
 
   // Handle node selection change
   const handleNodeChange = (event) => {
