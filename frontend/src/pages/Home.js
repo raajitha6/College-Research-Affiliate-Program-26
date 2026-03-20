@@ -98,23 +98,30 @@ const Home = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('all');
   const [customFromDate, setCustomFromDate] = useState('');
   const [customToDate, setCustomToDate] = useState('');
+  const [predictionHistory, setPredictionHistory] = useState([]);
 
   const [currentPrediction, setCurrentPrediction] = useState(null); //real time prediction
 
-  const timelineData = [ //dummy vals for activity timeline
-    { time: "10:00", duration: 5 },
-    { time: "11:00", duration: 8 },
-    { time: "12:00", duration: 3 }
-  ];
+  const timelineData = predictionHistory.map(item => ({
+    time: new Date(item.timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    }),
+    duration: Math.round(item.confidence * 10)
+  }));
 
-  
-
-  const predictionDistribution = [ //dummy vals connecting to PredictionDistributionChart
-    { name: 'shower', value: 12 },
-    { name: 'faucet', value: 25 },
-    { name: 'toilet', value: 8 },
-    { name: 'dishwasher', value: 5 }
-  ];
+  const predictionDistribution = Object.values(
+    predictionHistory.reduce((acc, item) => {
+      if (!acc[item.prediction]) {
+        acc[item.prediction] = {
+          name: item.prediction,
+          value: 0
+        };
+      }
+      acc[item.prediction].value += 1;
+      return acc;
+    }, {})
+  );
 
   const fetchPrediction = async (distance, temperature) => {
     try {
@@ -125,14 +132,37 @@ const Home = () => {
         temperature:temperature,
         time_features: [0,0,0]
       }
-    );
+      );
 
-    setCurrentPrediction(response.data);
+      const result=response.data;
+      setCurrentPrediction(result);
 
-  } catch (error) {
+      setPredictionHistory(prev => [
+      {
+        prediction: result.prediction,
+        confidence: result.confidence,
+        timestamp: new Date().toISOString()
+      },
+      ...prev
+    ]);
+
+    } catch (error) {
     console.error("Prediction error:", error);
-  }
-};
+    }
+  };
+
+  const fetchPredictionHistory = async () => {
+    try {
+      const response = await axios.get(
+        `${config.API_BASE_URL}/api/v1/predictions-history`
+      );
+
+      setPredictionHistory(response.data);
+
+    } catch (error) {
+      console.error("Error fetching prediction history:", error);
+    }
+  };
 
   // Mapping between node IDs and tank IDs for sensor data
   const getActualTankId = (nodeId) => {
@@ -375,10 +405,12 @@ const Home = () => {
     // Initial data fetch
     fetchNodes();
     fetchSensorData();
+    fetchPredictionHistory();
 
     // Update data every 30 seconds
     const interval = setInterval(() => {
       fetchSensorData();
+      fetchPredictionHistory();
     }, 30000);
 
     return () => clearInterval(interval);
