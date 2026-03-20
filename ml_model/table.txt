@@ -9,7 +9,7 @@
 | 7          | CNN  | 2 conv | 48,24       | -       | 0.001  | 8      | 85.94%   | Baseline                  |
 | 8          | CNN  | 2 conv | 64,128      | -       | 0.001  | 8      | 85.56%   | More filters              |
 | 9          | CNN  | 2 conv | 48,24       | -       | 0.001  | 8      | 86.36%   | Added BatchNormalization  |
-| 10         | GRU  | 2      | 48,24       | 0.2     | 0.001  | 8      | 86.57%   | Baseline                  |
+| 10         | GRU  | 2      | 48,24       | 0.2     | 0.001  | 8      | 83.75%   | Baseline                  |
 | 11         | GRU  | 2      | 128,64      | 0.3     | 0.001  | 8      | 87.01%   | Larger model              |
 | 12         | GRU  | 2      | 128,64      | 0.3     | 0.001  | 8      | 87.42%   | Added BatchNormalization  |
 | 13         | GRU  | 3      | 128,64,32   | 0.3     | 0.001  | 8      | 84.20%   | Deeper                    |
